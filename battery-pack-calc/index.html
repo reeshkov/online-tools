@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Конфигуратор аккумуляторной сборки списком</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --border: #e2e8f0;
+            --text: #1e293b;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --warning: #f59e0b;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1, h2, h3 {
+            color: #0f172a;
+            margin-top: 0;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 550px 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 1024px) {
+            .grid-layout { grid-template-columns: 1fr; }
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+            color: #475569;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        input:focus {
+            outline: 2px solid var(--primary);
+            border-color: transparent;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover { background-color: var(--primary-hover); }
+        
+        .btn:disabled {
+            background-color: #cbd5e1;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+        
+        .btn-danger { background-color: var(--danger); }
+        .btn-danger:hover { background-color: #dc2626; }
+        
+        .btn-success { background-color: var(--success); }
+        .btn-success:hover { background-color: #16a34a; }
+
+        .btn-secondary { background-color: #64748b; }
+        .btn-secondary:hover { background-color: #475569; }
+
+        .list-container {
+            max-height: none;
+            overflow-y: visible;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            background: #f8fafc;
+        }
+
+        .cell-input-row {
+            display: grid;
+            grid-template-columns: 100px 140px 140px 1fr;
+            gap: 10px;
+            align-items: center;
+            background: white;
+            padding: 8px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            margin-bottom: 8px;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+
+        .cell-input-row.extra-row {
+            border-left: 4px solid var(--success);
+        }
+
+        /* Подсветка пустых строк при валидации */
+        .cell-input-row.invalid-row {
+            border-color: var(--danger) !important;
+            background-color: #fef2f2;
+        }
+
+        .marker-label {
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: #475569;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .error-message {
+            background-color: #fef2f2;
+            color: var(--danger);
+            border: 1px solid #fca5a5;
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 24px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .parallel-group {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .cells-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .cell-card {
+            background: white;
+            border: 2px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 10px;
+            min-width: 95px;
+            text-align: center;
+            font-size: 0.85rem;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .cell-marker {
+            font-weight: bold;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 4px;
+            color: var(--primary);
+        }
+
+        .unused-card {
+            border-color: #94a3b8;
+            background: #f1f5f9;
+        }
+
+        .unused-card .cell-marker {
+            color: #64748b;
+        }
+
+        .badge-delta {
+            background-color: #ffedd5;
+            color: #c2410c;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        
+        .actions-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 16px;
+        }
+/* 
+        .utility-panel {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        } */
+        .utility-panel {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+
+        input.ir-warning {
+            border-color: var(--warning) !important;
+            background-color: #fffbeb;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Конфигуратор аккумуляторной сборки</h1>
+    
+    <div class="grid-layout">
+        <!-- Левая колонка -->
+        <div>
+            <div class="card">
+                <h2>1. Параметры схемы</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="sCount">Последовательно (S)</label>
+                        <input type="number" id="sCount" value="7" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="pCount">Параллельно (P)</label>
+                        <input type="number" id="pCount" value="4" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="markerPrefix">Префикс</label>
+                        <input type="text" id="markerPrefix" value="BAT-">
+                    </div>
+                    <div class="form-group">
+                        <label for="nextIndex">Старт инд.</label>
+                        <input type="number" id="nextIndex" value="1" min="1">
+                    </div>
+                </div>
+                <button id="rebuildBaseListBtn" class="btn">Создать базовый список банок</button>
+            </div>
+
+            <div class="card">
+                <h2>2. Ввод данных банок (<span id="totalInputCounter">0</span>)</h2>
+                
+                <div class="utility-panel">
+                    <button id="demoDataBtn" class="btn btn-secondary" style="font-size: 0.85rem; padding: 6px 10px;">Тест-данные</button>
+                    <button id="exportInputsBtn" class="btn btn-secondary" style="font-size: 0.85rem; padding: 6px 10px;">Экспорт данных</button>
+                    <button id="importInputsBtn" class="btn btn-secondary" style="font-size: 0.85rem; padding: 6px 10px;">Импорт данных</button>
+                    <button id="clearAllBtn" class="btn btn-danger" style="font-size: 0.85rem; padding: 6px 10px;">Очистить</button>
+                </div>
+                <!-- Скрытый инпут для загрузки файлов -->
+                <input type="file" id="fileImportSelector" accept=".json" style="display: none;">
+
+
+                <div id="cellsListContainer" class="list-container">
+                    <!-- Строки генерируются через JS -->
+                </div>
+                
+                <div class="actions-panel">
+                    <button id="addExtraCellBtn" class="btn btn-success">+ Добавить доп. банку</button>
+                    <button id="calculateBtn" class="btn" style="background-color: #0f172a;">Рассчитать балансировку</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Правая колонка -->
+        <div>
+            <div id="errorOutput" class="error-message"></div>
+
+            <div id="resultSection" class="card" style="display: none;">
+                <div class="result-header">
+                    <h2>3. Результаты распределения</h2>
+                    <button id="exportCsvBtn" class="btn btn-success" style="width: auto;">Скачать карту в CSV</button>
+                </div>
+                <p>Максимальный разброс емкости между параллелями (Delta): <span id="deltaOutput" class="badge-delta">0 мАч</span></p>
+                
+                <div id="matrixContainer">
+                    <!-- Карта параллелей -->
+                </div>
+
+                <h2 style="margin-top: 32px;">Неиспользованные банки (Остаток)</h2>
+                <div id="unusedContainer" class="cells-grid">
+                    <!-- Отбракованные банки -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Подключение разделенной логики -->
+<script src="balancing.js"></script>
+<script src="ui.js"></script>
+</body>
+</html>
