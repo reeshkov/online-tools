@@ -201,11 +201,14 @@ function handleCalculation() {
     }
 
     // Вызываем изолированный метод балансировки из balancing.js
-    const result = BalancingCore.balancePack(parsedCells, sCount, pCount);
+    const result = BalancingCore.balancePack(parsedCells, sCount, pCount,{
+        maxIterations: sCount*100,
+        hotGroupIds: [sCount]
+    });
     globalCalculatedGroups = result.groups;
 
     // Вывод результатов на страницу
-    document.getElementById('deltaOutput').innerText = `${result.delta} мАч`;
+    document.getElementById('deltaOutput').innerText = `${result.deltaCapacity} мАч`;
 
     const matrixContainer = document.getElementById('matrixContainer');
     matrixContainer.innerHTML = '';
